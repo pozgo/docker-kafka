@@ -1,0 +1,133 @@
+Configuration has changed, reloading all the things
+array (
+  'service' => 'Kafka',
+  'brokers' => 
+  array (
+    0 => '192.168.0.50:9092',
+  ),
+  'state_dir' => '/workdir/state',
+  'loglevel' => 7,
+  'timeout' => 1000,
+  'topics' => 
+  array (
+    0 => 
+    array (
+      'name' => 'test1',
+      'partitions' => 
+      array (
+        0 => 0,
+      ),
+    ),
+  ),
+  'config_check_interval' => 6,
+  'queue_check_interval' => 2,
+)Loaded stored offset of: 10
+Will start processing topic:test1 partition:0 at offset 
+RdKafka\Message::__set_state(array(
+   'err' => -191,
+   'topic_name' => 'test1',
+   'partition' => 0,
+   'payload' => '',
+   'key' => NULL,
+   'offset' => 0,
+))There were no messages to process
+Sleeping for 2 seconds
+Not time to check the config yet
+There were no messages to process
+Sleeping for 2 seconds
+Not time to check the config yet
+There were no messages to process
+Sleeping for 2 seconds
+Configuration hasn't changed
+There were no messages to process
+Sleeping for 2 seconds
+Not time to check the config yet
+RdKafka\Message::__set_state(array(
+   'err' => 0,
+   'topic_name' => 'test1',
+   'partition' => 0,
+   'payload' => 'Message 0',
+   'key' => NULL,
+   'offset' => 0,
+))Retrieved message: Message 0
+RdKafka\Message::__set_state(array(
+   'err' => 0,
+   'topic_name' => 'test1',
+   'partition' => 0,
+   'payload' => 'Message 1',
+   'key' => NULL,
+   'offset' => 1,
+))Retrieved message: Message 1
+RdKafka\Message::__set_state(array(
+   'err' => 0,
+   'topic_name' => 'test1',
+   'partition' => 0,
+   'payload' => 'Message 2',
+   'key' => NULL,
+   'offset' => 2,
+))Retrieved message: Message 2
+RdKafka\Message::__set_state(array(
+   'err' => 0,
+   'topic_name' => 'test1',
+   'partition' => 0,
+   'payload' => 'Message 3',
+   'key' => NULL,
+   'offset' => 3,
+))Retrieved message: Message 3
+RdKafka\Message::__set_state(array(
+   'err' => 0,
+   'topic_name' => 'test1',
+   'partition' => 0,
+   'payload' => 'Message 4',
+   'key' => NULL,
+   'offset' => 4,
+))Retrieved message: Message 4
+RdKafka\Message::__set_state(array(
+   'err' => 0,
+   'topic_name' => 'test1',
+   'partition' => 0,
+   'payload' => 'Message 5',
+   'key' => NULL,
+   'offset' => 5,
+))Retrieved message: Message 5
+RdKafka\Message::__set_state(array(
+   'err' => 0,
+   'topic_name' => 'test1',
+   'partition' => 0,
+   'payload' => 'Message 6',
+   'key' => NULL,
+   'offset' => 6,
+))Retrieved message: Message 6
+RdKafka\Message::__set_state(array(
+   'err' => 0,
+   'topic_name' => 'test1',
+   'partition' => 0,
+   'payload' => 'Message 7',
+   'key' => NULL,
+   'offset' => 7,
+))Retrieved message: Message 7
+RdKafka\Message::__set_state(array(
+   'err' => 0,
+   'topic_name' => 'test1',
+   'partition' => 0,
+   'payload' => 'Message 8',
+   'key' => NULL,
+   'offset' => 8,
+))Retrieved message: Message 8
+RdKafka\Message::__set_state(array(
+   'err' => 0,
+   'topic_name' => 'test1',
+   'partition' => 0,
+   'payload' => 'Message 9',
+   'key' => NULL,
+   'offset' => 9,
+))Retrieved message: Message 9
+RdKafka\Message::__set_state(array(
+   'err' => -191,
+   'topic_name' => 'test1',
+   'partition' => 0,
+   'payload' => '',
+   'key' => NULL,
+   'offset' => 10,
+))There were no messages to process
+Sleeping for 2 seconds

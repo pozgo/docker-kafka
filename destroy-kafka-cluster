@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+composefile="docker-compose.yml"
+# Bash Colors
+green=`tput setaf 2`
+white=`tput setaf 7`
+bold=`tput bold`
+reset=`tput sgr0`
+# Logging Functions
+log() {
+  if [[ "$@" ]]; then echo "${bold}${green}[KAFKA-LOG `date +'%T'`]${reset} ${bold}${white}$@${reset}";
+  else echo; fi
+}
+destroyKafka() {
+  log "Stop all containers first"
+  docker-compose -f "${composefile}" stop
+  log "Remove everything with force"
+  docker-compose -f "${composefile}" rm -f
+}
+# Fun starts here
+destroyKafka

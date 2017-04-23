@@ -1,0 +1,103 @@
+#!/usr/bin/env bash
+# Bash Colors
+green=`tput setaf 2`
+white=`tput setaf 7`
+bold=`tput bold`
+reset=`tput sgr0`
+# Logging Functions
+log() {
+  if [[ "$@" ]]; then echo "${bold}${green}[KAFKA-LOG `date +'%T'`]${reset} ${bold}${white}$@${reset}";
+  else echo; fi
+}
+# Variables
+composefile="docker-compose.yml"
+zkdelay=10
+kfkdelay=10
+REPLICAS=1
+replicationdelay=30
+LOG=false
+HELP=false
+AUTO=true
+TESTS=false
+
+startKafka() {
+  # bring up zookeeper needed for kafka.
+  log "Booting ZooKeeper."
+  docker-compose -f "${composefile}" up -d zookeeper
+  log "Delaying to allow ZooKeeper to boot..."
+  sleep ${zkdelay}
+  
+  # bring up Kafka instance
+  log "Booting Kafka."
+  docker-compose -f "${composefile}" up -d kafka
+  log "Delaying to allow Local Kafka to boot..."
+  sleep ${kfkdelay}
+  
+  # bring up Kafka Manager (Access on port 9000).
+  log "Booting KafkaManager ${kfkMan}"
+  docker-compose -f "${composefile}" up -d kafkaManager
+  
+  # bring up HAProxy to allow connection to kafka replicas
+  log "Booting HAProxy Load Balancer"
+  docker-compose -f "${composefile}" up -d haproxy
+  
+  #scale up kafka to replica number
+  if [[ ${REPLICAS} > 1 ]]; then
+    log "Delaying to allow all services to boot..."
+    sleep ${replicationdelay}
+    log "Scaling Kafka to ${green}${bold}${REPLICAS} replicas${reset}"
+    docker-compose -f "${composefile}" scale kafka=${REPLICAS}
+    echo "================================================================"
+  fi
+}
+
+shouldTest() {
+  if [[ ${TESTS} == true ]]; then
+    log "Delaying for Kafka to finish booting..."
+    sleep 30
+    ./kafka-test-messages
+  fi
+}
+
+showStatus() {
+  docker-compose ps
+}
+
+usage() {
+  cat <<EOT
+Kafka deploy options:
+-h --help           Print this help
+-r --replicas       Specify number of replicas of kafka. (default=1)
+-t --test           Run builtin tests after kafka finished booting
+
+Example:
+$0 --replicas 3 --test
+EOT
+}
+
+while [ "$#" -gt 0 ] 
+do
+  case "$1" in
+    -h|--help)
+      usage; exit 0; ;;
+    -r|--replicas)
+      REPLICAS=$2; AUTO=false; ;;
+    -t|--test)
+      TESTS=true; ;;
+    esac
+    shift
+done
+
+if [[ ${AUTO} == true ]]; then
+  log "No Options specified. Do you want to start kafka with default settings?"
+  log "yes/no (y/n)"
+  read que
+fi
+
+if [[ ${que} == "n" || ${que} == "no" ]]; then
+  log "For more options use --help"
+  exit 0
+ fi
+ 
+## Start the fun
+startKafka; shouldTest; showStatus

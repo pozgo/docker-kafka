@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+# Bash Colors
+green=`tput setaf 2`
+white=`tput setaf 7`
+bold=`tput bold`
+reset=`tput sgr0`
+# Logging Functions
+log() {
+  if [[ "$@" ]]; then echo "${bold}${green}[KAFKA-LOG `date +'%T'`]${reset} ${bold}${white}$@${reset}";
+  else echo; fi
+}
+# Variables
+DEFAULT_ADDRESS="192.168.0.200"
+ADDRESS=""
+
+usage() {
+  cat <<EOT
+Kafka deploy options:
+-a --address    Specify address on which kafka will work. (default=${DEFAULT_ADDRESS})
+-h --help       This help message
+
+* Make sure that you specify address different than default=${DEFAULT_ADDRESS}
+Example:
+$0 --address 192.168.100.200
+EOT
+}
+
+checkInput() {
+  if [[ ${ADDRESS} == "" ]]; then
+    log "Address not provided. Please make sure you specify valid IP address o FQDN"
+    usage
+    exit 0
+  fi
+}
+
+setAddress() {
+  checkInput
+  log "Setting Kafka to work under adress: ${ADDRESS}"
+  declare -a files=('docker-compose.yml' 'tests/config.php' 'tests/producer.php')
+  for file in "${files[@]}"
+    do
+      if [[ $(uname -s) == "Darwin" ]]; then
+        sed -i "" 's|'${DEFAULT_ADDRESS}'|'${ADDRESS}'|g' $file
+      else
+        sed -i 's|'${DEFAULT_ADDRESS}'|'${ADDRESS}'|g' $file
+      fi
+    done
+  log "All Files modified"
+}
+
+while [ "$#" -gt 0 ] 
+do
+  case "$1" in
+    -h|--help)
+      usage; exit 0; ;;
+    -a|--address)
+      ADDRESS=$2; ;;
+    esac
+    shift
+done
+
+setAddress

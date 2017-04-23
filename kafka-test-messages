@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# Bash Colors
+green=`tput setaf 2`
+white=`tput setaf 7`
+bold=`tput bold`
+reset=`tput sgr0`
+# Logging Functions
+log() {
+  if [[ "$@" ]]; then echo "${bold}${green}[KAFKA-LOG `date +'%T'`]${reset} ${bold}${white}$@${reset}";
+  else echo; fi
+}
+
+buildPHPImage() {
+  log "Build PHP Docker image needed for tests to work.."
+  docker build -t test/php71 tests/
+  log "Image built"
+}
+
+testImage() {
+  log "Test image itself before starting tests"
+  docker run -ti --rm test/php71 bash -c "php --version | grep 'PHP 7.1.0'"
+  log "Image works. Starting tests..."
+}
+
+runProducesTest() {
+  log "Delay for tests to finish in background..."
+  sleep 10 
+  log "Sending messages to kafka..."
+  docker run -ti --rm --name test1 -v ${PWD}/tests:/workdir -w /workdir test/php71 bash -c "php producer.php"
+  log "Removing consumer container..."
+  docker rm -f test2
+  grep "Message 8" tests/out.log
+}
+
+runConsumerTest() {
+  log "Starting Kafka consummer..."
+  docker run -d --name test2 -v ${PWD}/tests:/workdir -w /workdir test/php71 bash -c "php consumer.php > out.log"
+}
+
+cleanImages() {
+  log "Removing not needed Images"
+  docker rmi -f test/php71 polinux/php:7.1
+}
+
+# Fun starts here
+log "Starting Tests for Kafka..."; sleep 2
+buildPHPImage
+testImage
+runConsumerTest
+runProducesTest
+cleanImages
+log "All tests finished. All GOOD!"
+exit 0
