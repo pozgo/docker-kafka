@@ -1,0 +1,31 @@
+services:
+  - docker
+
+before_install:
+  - sudo ip address add 192.168.0.50/24 dev eth0
+
+script:
+  # Build Image
+  - docker build -t polinux/kafka .
+  # Start Zookeeper
+  - docker run -d --name zookeeper -p 2181:2181 zookeeper
+  - sleep 10
+  # Start Kafka
+  - docker run -d --name kafka -p 9092:9092 -e KAFKA_ADVERTISED_HOST_NAME="192.168.0.50" -e KAFKA_ZOOKEEPER_CONNECT="192.168.0.50:2181" -v /var/run/docker.sock:/var/run/docker.sock polinux/kafka
+  - sleep 10
+  # Start Kafka Manager
+  - docker run -d --name kafkaManager -p 9000:9000 -e ZK_HOSTS="192.168.0.50:2181" -e APPLICATION_SECRET="letmein" sheepkiller/kafka-manager:1.3.1.8
+  # Build test image
+  - docker build -t test/php71 tests/
+  # Start producer and send 10 messages
+  - docker run -ti --rm --name test1 --add-host kafka:192.168.0.50 -v ${PWD}/tests:/workdir -w /workdir test/php71 bash -c "php producer.php"
+  - sleep 10
+  # Make directories.
+  - sudo mkdir -p tests/state && sudo chmod 777 tests/state
+  # Start Consumer adn wait for incoming messages from producer 
+  - docker run -d --name test2 --add-host kafka:192.168.0.50 -v ${PWD}/tests:/workdir -w /workdir test/php71 bash -c "php consumer.php > out.log"
+  - sleep 10
+  - curl -sSLi http://192.168.0.50:9000  | grep '200 OK'
+  # Test if messages were consumed
+  - cat tests/out.log
+  - grep "Message 8" tests/out.log
